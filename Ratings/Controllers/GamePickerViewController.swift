@@ -1,20 +1,28 @@
 //
-//  PlayersViewController.swift
+//  GamePickerViewController.swift
 //  Ratings
 //
-//  Created by Adrian Peterson Co on 5/29/15.
+//  Created by Adrian Peterson Co on 5/31/15.
 //  Copyright (c) 2015 Fifi Coco. All rights reserved.
 //
 
 import UIKit
 
-class PlayersViewController: UITableViewController {
-
-  var players: [Player] = playersData
+class GamePickerViewController: UITableViewController {
+  
+    var games: [String]!
+    var selectedGame:String? = nil
+    var selectedGameIndex:Int? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+      
+        games = ["Angry Birds", "Chess", "Russian Roulette", "Spin the Bottle", "Texas Hold'em Poker", "Tic-Tac-Toe"]
+      
+        if let game = selectedGame {
+          selectedGameIndex = find(games, game)!
+        }
+      
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -38,51 +46,39 @@ class PlayersViewController: UITableViewController {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        return players.count
+        return games.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("PlayerCell", forIndexPath: indexPath) as! PlayerCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("GameCell", forIndexPath: indexPath) as! UITableViewCell
 
-        let player = players[indexPath.row] as Player
+        cell.textLabel?.text = games[indexPath.row]
       
-        cell.nameLabel.text = player.name
-        cell.gameLabel.text = player.game
-        cell.ratingImageView.image = imageForRating(player.rating)
-      
+        if indexPath.row == selectedGameIndex {
+          cell.accessoryType = .Checkmark
+        } else {
+          cell.accessoryType = .None
+        }
+
         return cell
     }
   
-    func imageForRating(rating: Int) -> UIImage? {
-        switch rating {
-        case 1:
-          return UIImage(named: "1StarSmall")
-        case 2:
-          return UIImage(named: "2StarsSmall")
-        case 3:
-          return UIImage(named: "3StarsSmall")
-        case 4:
-          return UIImage(named: "4StarsSmall")
-        case 5:
-          return UIImage(named: "5StarsSmall")
-        default:
-          return nil
-        }
-    }
-  
-    @IBAction func cancelToPlayersViewController(segue:UIStoryboardSegue) {
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+      tableView.deselectRowAtIndexPath(indexPath, animated: true)
       
-    }
-    
-    @IBAction func savePlayerDetail(segue:UIStoryboardSegue) {
-        if let playerDetailsViewController = segue.sourceViewController as? PlayerDetailsViewController {
-            players.append(playerDetailsViewController.player);
-        }
+      if let index = selectedGameIndex {
+        let cell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0))
+        cell?.accessoryType = .None
+      }
       
-        let indexPath = NSIndexPath(forRow: players.count - 1, inSection: 0)
-        tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+      selectedGameIndex = indexPath.row
+      selectedGame = games[indexPath.row]
+      
+      let cell = tableView.cellForRowAtIndexPath(indexPath)
+      cell?.accessoryType = .Checkmark
     }
-  
+ 
+
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -127,5 +123,16 @@ class PlayersViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+      if segue.identifier == "SaveSelectedGame" {
+        if let cell = sender as? UITableViewCell {
+          let indexPath = tableView.indexPathForCell(cell)
+          selectedGameIndex = indexPath?.row
+          if let index = selectedGameIndex {
+            selectedGame = games[index]
+          }
+        }
+      }
+    }
 
 }

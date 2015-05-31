@@ -1,19 +1,25 @@
 //
-//  PlayersViewController.swift
+//  PlayerDetailsViewController.swift
 //  Ratings
 //
-//  Created by Adrian Peterson Co on 5/29/15.
+//  Created by Adrian Peterson Co on 5/31/15.
 //  Copyright (c) 2015 Fifi Coco. All rights reserved.
 //
 
 import UIKit
 
-class PlayersViewController: UITableViewController {
+class PlayerDetailsViewController: UITableViewController {
 
-  var players: [Player] = playersData
-
+    @IBOutlet weak var detailLabel: UILabel!
+    @IBOutlet weak var nameTextField: UITextField!
+  
+    var player: Player!
+    var game:String = "Chess"
+  
     override func viewDidLoad() {
         super.viewDidLoad()
+      
+        detailLabel.text = game
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -28,61 +34,19 @@ class PlayersViewController: UITableViewController {
     }
 
     // MARK: - Table view data source
-
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
-        return 1
-    }
-
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete method implementation.
-        // Return the number of rows in the section.
-        return players.count
-    }
-
+  
+    /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("PlayerCell", forIndexPath: indexPath) as! PlayerCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
 
-        let player = players[indexPath.row] as Player
-      
-        cell.nameLabel.text = player.name
-        cell.gameLabel.text = player.game
-        cell.ratingImageView.image = imageForRating(player.rating)
-      
+        if indexPath.section == 0 {
+            nameTextField.becomeFirstResponder()
+        }
+
         return cell
     }
-  
-    func imageForRating(rating: Int) -> UIImage? {
-        switch rating {
-        case 1:
-          return UIImage(named: "1StarSmall")
-        case 2:
-          return UIImage(named: "2StarsSmall")
-        case 3:
-          return UIImage(named: "3StarsSmall")
-        case 4:
-          return UIImage(named: "4StarsSmall")
-        case 5:
-          return UIImage(named: "5StarsSmall")
-        default:
-          return nil
-        }
-    }
-  
-    @IBAction func cancelToPlayersViewController(segue:UIStoryboardSegue) {
-      
-    }
-    
-    @IBAction func savePlayerDetail(segue:UIStoryboardSegue) {
-        if let playerDetailsViewController = segue.sourceViewController as? PlayerDetailsViewController {
-            players.append(playerDetailsViewController.player);
-        }
-      
-        let indexPath = NSIndexPath(forRow: players.count - 1, inSection: 0)
-        tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-    }
-  
+    */
+
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -117,15 +81,30 @@ class PlayersViewController: UITableViewController {
         return true
     }
     */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
+  
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+      if indexPath.section == 0 {
+        nameTextField.becomeFirstResponder()
+      }
     }
-    */
 
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "SavePlayerDetail" {
+            player = Player(name: self.nameTextField.text, game: game, rating: 5)
+        }
+      
+        if segue.identifier == "PickGame" {
+            if let gamePickerViewController = segue.sourceViewController as? GamePickerViewController {
+                gamePickerViewController.selectedGame = game
+            }
+        }
+    }
+  
+    @IBAction func selectedGame(segue: UIStoryboardSegue) {
+      if let gamePickerViewController = segue.sourceViewController as? GamePickerViewController, selectedGame = gamePickerViewController.selectedGame {
+        detailLabel.text = selectedGame
+        game = selectedGame
+      }
+    }
+  
 }
